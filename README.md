@@ -1,5 +1,7 @@
 # **Chapter1. Dimensionality Reduction**
 
+[Code Example](https://github.com/JINU6497/BA_/tree/main/1_Dimensionality%20Reduction)
+
 고려대학교 강필성 교수님의 Business analytics 수업을 기반으로 하는 자료임을 밝힙니다.
 
 보통 머신러닝에서 Business Analytics의 과정은 크게 다음과 같이 이루어집니다.
