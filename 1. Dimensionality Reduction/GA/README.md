@@ -20,4 +20,4 @@
 
 최종적으로, 모델은 다음과 같이 구성되어 있다.
 
-![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/80a63756-46d2-4651-a6ea-8f37ca34b5fa/Untitled.png)
+![image](https://user-images.githubusercontent.com/87464956/195621403-cd9de2d8-5d81-447e-acba-4d590c3e95a7.png)
