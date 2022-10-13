@@ -6,7 +6,7 @@
 
 ### Step 1: Distance matrix 계산
 - 일반적인 데이터를 거리나 유사도 행렬로 변환
-- $X^{d*n}  -> D^{n*n}$ 로 계산
+- $X^{d*n}$  -> $D^{n*n}$ 로 계산
 - 거리 metric 또는 유사도 metric 사용 
 
 ### Step 2: Inner product B 계산
