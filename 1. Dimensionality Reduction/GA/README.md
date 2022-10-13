@@ -2,7 +2,7 @@
 
 **Stepwise selection**보다도 시간은 오래 걸리나 **Optimal한 performance 내는 알고리즘**
 
-즉, 계산 시간을 더 투입하여 **Local search(forward/backward/stepwise)**의 성능을 improve시키자는 것이 GA의 목적.
+즉, 계산 시간을 더 투입하여 **Local search(forward/backward/stepwise)** 의 성능을 improve시키자는 것이 GA의 목적.
 
 이를 **Meta-Heuristic approach**라고도 하는데, trial or error 방식을 사용하는 과정에서 무작위로 trial하는 것이 아니라 어떻게 더 효율적으로 trial 할 수 있을까를 고안하는 것.
 
