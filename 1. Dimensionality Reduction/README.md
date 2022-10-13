@@ -16,7 +16,7 @@ $x_{1}$부터 $x_{d}$까지의 데이터가 있는 $X$데이터가 있을 때, �
 
 이때, 학습을 방해하지 않는 선에서 $x_{1}$부터 $x_{d}$까지의 데이터를 $x_{1}$부터 $x^{'}_{d}$까지 $X$의 차원을 축소시키는 것이 **Dimension reduction입니다.** 
 
-
+![image](https://user-images.githubusercontent.com/87464956/195630451-4d783d8b-62cf-4624-bc23-4c0c58ef3dd2.png)
 
 ![image](https://user-images.githubusercontent.com/87464956/195574729-4dc88285-1a3f-4efb-a6d2-78e77eca9643.png)
 
@@ -24,14 +24,18 @@ $x_{1}$부터 $x_{d}$까지의 데이터가 있는 $X$데이터가 있을 때, �
 
 <img src = 'https://user-images.githubusercontent.com/87464956/195574804-b7334e4e-1248-4c86-89ae-d99ee667882d.png' width = '30%' height = '30%'/>
 
+![image](https://user-images.githubusercontent.com/87464956/195630476-ff078a26-e75c-47b5-b09e-ae5958662d01.png)
 
 이러한 식을 만족하여, 모델 효율성을 높여주는 것이 Dimensionality Reudction입니다.
 
 Dimensionality Reudction의 필요성을 **차원의 저주(Curse of dimension)** 측면에서도 설명할 수 있습니다.
 
 
+![image](https://user-images.githubusercontent.com/87464956/195630489-cb36bc3a-a33b-44dd-87e5-e2ba23fa8ced.png)
 
 ![image](https://user-images.githubusercontent.com/87464956/195575160-5a47cea8-da66-406a-8dd9-577dd0fd22af.png)
+
+![image](https://user-images.githubusercontent.com/87464956/195630493-e4a7b4d5-683d-4ba8-bb57-d898900bf3d3.png)
 
 
 
@@ -45,37 +49,39 @@ Dimensionality Reudction의 필요성을 **차원의 저주(Curse of dimension)*
 
 먼저,  차원 축소의 방법론은 다음과 같이 크게 2가지로 나눌 수 있습니다.
 
-
+![image](https://user-images.githubusercontent.com/87464956/195630512-2f8b38fc-0db6-4916-9809-38084d472ae1.png)
 
 ![image](https://user-images.githubusercontent.com/87464956/195575196-a5ac208e-70c3-40a4-9fb1-67124cbc185d.png)
 
+![image](https://user-images.githubusercontent.com/87464956/195630520-b25f0e71-308e-4ec6-b995-a1f22df9612d.png)
 
 
 **supervised Dimensionality reduction**방식은 중간에 알고리즘 또는 모델이 개입을 하는 것 입니다. supervised feature selection을 통하여 차원을 줄이고, 알고리즘에서 feedback roof를 통하여 개선할 수 있습니다.
 
-
+![image](https://user-images.githubusercontent.com/87464956/195630716-5af1acaa-536c-4e1a-b37c-6c48c53d4fb6.png)
 
 ![image](https://user-images.githubusercontent.com/87464956/195575235-32909440-f8e3-427e-89d0-60afed12ff55.png)
 
+![image](https://user-images.githubusercontent.com/87464956/195630723-066aea0c-c160-4659-860e-fca3380dabb7.png)
 
 
 **unsupervised Dimensionality reduction**는 feedback roof가 존재하지 않습니다. 특정한 방법이나 지표를 사용하여 한번만 실행하여 변수를 줄이는 방법입니다. 
 
 다음으로, 차원 축소에 대한 결과물에 따라 **Feature selection** or **Feature extraction 방법**으로 나눌 수 있습니다.
 
-
+![image](https://user-images.githubusercontent.com/87464956/195630752-8c35fceb-2785-4615-b3a7-7b8f4bd0ad34.png)
 
 ![image](https://user-images.githubusercontent.com/87464956/195575265-d6acaed0-2922-4f3a-81cf-62ce03f9b425.png)
 
-
+![image](https://user-images.githubusercontent.com/87464956/195630771-7da35b74-7157-45e3-9e62-7d5ee7991d14.png)
 
 **Feature** S**election**은 말 그대로 현재 존재하는 변수들로부터 **부분집합**을 뽑아내는 것 입니다.
 
-
+![image](https://user-images.githubusercontent.com/87464956/195630782-152cedd6-9599-4407-ab2c-fc6460d9dd8a.png)
 
 ![image](https://user-images.githubusercontent.com/87464956/195575297-3cd9fcb5-f16c-4eda-bdee-a704b1c14e1a.png)
 
-
+![image](https://user-images.githubusercontent.com/87464956/195630799-25ed4aa0-4999-4ac5-8d73-6f849508de3d.png)
 
 **Feature Extracton**은 기존 변수들의 조합을 통하여 새로운 변수 집합을 만들어 내는 것을 말합니다.
 
