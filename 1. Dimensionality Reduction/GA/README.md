@@ -20,4 +20,8 @@
 
 최종적으로, 모델은 다음과 같이 구성되어 있다.
 
+![image](https://user-images.githubusercontent.com/87464956/195630960-fb233ae2-2a6e-49e9-a488-be38e0ace527.png)
+
 ![image](https://user-images.githubusercontent.com/87464956/195621403-cd9de2d8-5d81-447e-acba-4d590c3e95a7.png)
+
+![image](https://user-images.githubusercontent.com/87464956/195630989-21d0caa8-4670-4621-9f0b-e7746ac08d56.png)
