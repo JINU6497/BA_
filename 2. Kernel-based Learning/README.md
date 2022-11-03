@@ -190,7 +190,7 @@ ax = sns.heatmap(train_corr, annot=True, annot_kws=dict(color='r'), cmap='Greys'
 
 ![image](https://user-images.githubusercontent.com/87464956/199727981-5d062ac7-fd01-44da-8aae-00aa9db4076e.png)
 
-이때, 각 변수들과 Target과의 상관 관계를 확인한 후, **가장 상관 관계가 높은 변수인od280/od315_of_diluted_wines(희석 와인의 OD280/OD315 비율)과 flavanoids(플라보노이드 폴리페놀)**를 통하여 해당 실험을 진행하도록 하겠습니다.
+이때, 각 변수들과 Target과의 상관 관계를 확인한 후, **가장 상관 관계가 높은 변수인od280/od315_of_diluted_wines(희석 와인의 OD280/OD315 비율)과 flavanoids(플라보노이드 폴리페놀)** 를 통하여 해당 실험을 진행하도록 하겠습니다.
 
 ```python
 # Train data와 Test data 비율 0.9:0.1 로 맞춰주고 Shuffle
