@@ -84,7 +84,7 @@ $x, y$는 데이터로부터, $w, a$ **KKT condition**에 의하여 따로 구�
 
 ![image](https://user-images.githubusercontent.com/87464956/199709943-b30d071d-6e16-4c6d-8ee6-ad6b413187eb.png)
 
-Soft-SVM은 다음의 수식들을 통하여 Hard-SVM 과 똑같이 계산될 수 있고, 최종적으로는
+최종적으로 Soft-SVM은 다음의 수식들을 통하여 Hard-SVM 과 똑같이 계산될 수 있습니다.
 
 ![image](https://user-images.githubusercontent.com/87464956/199709968-8ee24d4e-4c7e-4a4a-a7bc-0e539516c818.png)
 
