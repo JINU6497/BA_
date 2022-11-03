@@ -1,10 +1,10 @@
 # 목차
 
 1. SVM
-2. Kernel
-3. SVM-tutorial
-4. SVR
-
+    - 1-1. Kernel
+    - 1-2. Tutorial
+2. SVR
+    - 2-1. Tutorial
 
 
 # 1. SVM
@@ -96,7 +96,7 @@ Soft-SVM은 다음의 수식들을 통하여 Hard-SVM 과 똑같이 계산될 �
 - C가 커지면 $ξ$ Panelty 허용이 작아지고, 이에 따라서 Margin이 작아집니다.
 - C가 작아지면 $ξ$ Panelty 허용이 커지고, 이에 따라서 Margin이 커집니다.
 
-# 2. Kernel
+## 1-1. Kernel
 
 저희는 지금까지의 과정을 통하여 SVM이 무엇인지 알 수 있었습니다. 그러나, **결국 SVM은 선형 분류기**입니다. 그렇다면 선형으로 분류가 불가능한 상황이라면 SVM은 쓸모가 없는 것일까요? **한 가지 아이디어**를 더한다면, 이를 사용할 수 있습니다 !
 
@@ -119,3 +119,7 @@ $Φ$함수의 사용법에 대한 예시를 들어보기 위하여 Soft-SVM Dual
 이때, Kernel 함수로는 다양한 함수가 존재하는데, 다음과 같은 함수들이 존재합니다.
 
 ![image](https://user-images.githubusercontent.com/87464956/199710076-05c8d92a-3114-4a69-971b-e60dfed4d223.png)
+
+## 1-2. Tutorial
+
+
