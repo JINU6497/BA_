@@ -1,11 +1,9 @@
 # 목차
 
 1. SVM
-    - Kernel
-    - Tutorial
-2. SVR
-    - Tutorial
-
+2. Kernel
+3. SVM-tutorial
+4. SVR
 
 
 
@@ -25,9 +23,9 @@
 
 다음으로는 **VC Dimension**입니다. 이는 어떤 함수의 Capacity를 측정하는 지표로, 어떤 함수에 의하여 최대로 Shatter할 수 있는 Points의 수를 의미합니다.  
 
-이 VC Dimension이 **클수록 더 복잡한 모델링**이 가능하지만, **Overfitting 되어서 Generalization 능력이 떨어질 수 있습니다.** 이러한 상황을 **구조적 위험(Structural Risk)**이라고 합니다. 
+이 VC Dimension이 **클수록 더 복잡한 모델링**이 가능하지만, **Overfitting 되어서 Generalization 능력이 떨어질 수 있습니다.** 이러한 상황을 **구조적 위험(Structural Risk)** 이라고 합니다. 
 
-결론적으로, 이러한 **구조적위험(Structural Risk)**은 데이터의 개수(n)와 VC dimension(h)으로 이루어지는데, 이를 **최소화해야 더 좋은 모델이라고 볼 수 있습니다.** 이때, SVM은 VC Dimension을 최소화 하기 위하여 **Margin**이라는 개념을 사용합니다.
+결론적으로, 이러한 **구조적위험(Structural Risk)** 은 데이터의 개수(n)와 VC dimension(h)으로 이루어지는데, 이를 **최소화해야 더 좋은 모델이라고 볼 수 있습니다.** 이때, SVM은 VC Dimension을 최소화 하기 위하여 **Margin**이라는 개념을 사용합니다.
 
 ![image](https://user-images.githubusercontent.com/87464956/199709583-097e49ef-b751-42b1-8924-c648101ebbe9.png)
 
@@ -41,13 +39,13 @@
 
 ![image](https://user-images.githubusercontent.com/87464956/199709652-1a773c16-2cc1-45f0-9584-258c87974c7f.png)
 
-이때, **SVM**은 $**y = wx+b$ 로 표현되는 선형회귀 모델이 Margin을 최대로 갖도록 하게하는 것입니다.**
+이때, **SVM**은 **$y = wx+b$ 로 표현되는 선형회귀 모델이 Margin을 최대로 갖도록 하게하는 것입니다.**
 
 오른쪽의 예시에서는 Binary classification을 하기 위하여 $wx+b>1$이면 $y$를 1로, $wx+b<-1$이면 $y$를 -1로 labeling합니다. 
 
 ![image](https://user-images.githubusercontent.com/87464956/199709682-0e0436d2-788c-4a6a-be2c-c4fdc238aa3e.png)
 
-먼저, **SVM**의 **목적함수**와 **제약식**은 다음과 같습니다. 이 제약식의 의미는 $wx_{i}+b=0$의 선이 존재하고 margin의 크기가 1이라고 간주하였을 때, $wx+b=-1 (j_{j}=-1)$ 선의 아래의 값들은 $y_{j}(wx_{j}+b)≥+1$이 되고, $wx+b=1 (j_{j}=1)$ 선 위의 값들 역시 $y_{j}(wx_{j}+b)≥+1$이 되어버리기 때문입니다. 
+먼저, **SVM**의 **목적함수**와 **제약식**은 다음과 같습니다. 이 제약식의 의미는 $wx_{i}+b=0$ 의 선이 존재하고 margin의 크기가 1이라고 간주하였을 때, $wx+b=-1 (j_{j}=-1)$ 선의 아래의 값들은 $y_{j}(wx_{j}+b)≥+1$이 되고, $wx+b=1 (j_{j}=1)$ 선 위의 값들 역시 $y_{j}(wx_{j}+b)≥+1$이 되어버리기 때문입니다. 
 
 이후 **제약조건**을 최적화 식에 더함으로써 **Primal Lagrangian Problem**을 만들고, 우리가 구해야 하는 **미지수인 w, b**에 대하여 **편미분**을 한 후에 이를 통하여 **Dual Lagrangian Problme**을 만들 수 있습니다.
 
@@ -67,7 +65,7 @@
 
 $x, y$는 데이터로부터, $w, a$ **KKT condition**에 의하여 따로 구할 수 있고, $b$는 위의 **margin 조건식**을 통하여 구할 수 있습니다. 
 
-그렇다면, **Margin의 크기**는 어떻게 구해지는 것일까요? 이는 **Largrangian multiplier $α$**를 통하여 구해집니다.
+그렇다면, **Margin의 크기**는 어떻게 구해지는 것일까요? 이는 **Largrangian multiplier $α$** 를 통하여 구해집니다.
 
 ![image](https://user-images.githubusercontent.com/87464956/199709842-b9660660-2740-4c33-ab8d-819f28e93844.png)
 
