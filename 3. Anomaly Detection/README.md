@@ -539,6 +539,8 @@ plt.ylabel('Training Loss', fontsize=20)
 
 똑같은 세팅 값을 바탕으로 훈련한 각 Data별 모델의 Loss 변화는 다음과 같습니다. 
 
+이때, Custom dataset같은 경우는 Loss가 들쭉날쭉한 것을 확인할 수 있는데, learning rate가 크게 잡혀서 수렴을 하지 못하는 것인가라는 생각이 들어 이후 실험 페이지에서 바꿔가면서 실험해볼 계획입니다.
+
 ```python
 # Mnist data 평가
 
@@ -674,6 +676,8 @@ print('[TP] {}\t[FP] {}\t[TN] {} [FN] {}'.format(tp, fp, tn, fn))
 
 
 ### 2-2. Experiments
+
+각 **Hyper parameter** 변화에 따른 실험 결과입니다. 초기 설정에서 epoch만 20으로 한 후 나머지 설정들은 그대로 유지한 채, 다음의 항목들에만 변화를 주었습니다. 
 
 #### 이상치 비율에 따른 변화
 
