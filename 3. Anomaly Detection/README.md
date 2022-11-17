@@ -95,7 +95,6 @@
 - **이상치 데이터의 개수**
 - **learning rate**
 - **Loss function**
-- **Autoencdoer 내의 Layer 수**
 
 먼저, 해당 실험을 위해 필요한 데이터들을 만들어 줍니다.
 
@@ -681,17 +680,29 @@ print('[TP] {}\t[FP] {}\t[TN] {} [FN] {}'.format(tp, fp, tn, fn))
 
 #### 이상치 비율에 따른 변화
 
+![image](https://user-images.githubusercontent.com/87464956/202449348-4f5957f5-d148-4cd8-9320-32bae9900229.png)
+
+**이상치 변화**에 따른 실험 결과입니다. **두 데이터 모두 이상치가 많아질수록 더 성능이 하락**하는 결과를 보였습니다. 
+
+사실, 이상치는 Random하게 생성되기에 각 실험마다 Threshold 값을 다르게 설정해주어야 그에 따라 Metric들이 변화하면서 좋은 실험이 될 것입니다. 그러나 아직 Threshold를 어떻게 설정해야 하는 지에 대해서는 공부를 하지 못해서 각 실험마다 고정된 Threshold값을 가지고 실험했기에, 믿을만한 결과는 아닐 것이라는 생각이 듭니다.
 
 
 #### Learning rate에 따른 변화
 
+![image](https://user-images.githubusercontent.com/87464956/202449377-de1d3f93-a958-402c-860f-d130ba9cb001.png)
 
+**Learning rate변화**에 따른 실험 결과입니다. 먼저 많은 분들이 잘 아시겠지만, Learning rate가 너무 큰 경우에는 데이터가 무질서하게 이탈하여, Global optimum에 수렴하지 못할 수 있습니다. 또한 너무 작은 경우에는 학습 시간이 매우 오래 걸리며, Global optimum에 도달하지 못하게 되므로, 가장 적절한 Learning rate를 찾는 것이 중요합니다. 
+
+Custom data에 관한 실험 결과에서는 Learning rate가 올라갈수록 성능이 조금씩 상승하는 모습을 보였으나, 어느 정도 선 이상으로는 크게 변화하지 않는 모습을 보여주었습니다.
+
+MNIST데이터의 경우에는 오히려 Learning rate 의 증가에 성능이 소폭 감소하였고, 이에 좀 더 낮은 Learning rate를 사용해보는 것이 좋을 것 같습니다.
 
 #### Loss function에 따른 변화
 
+![image](https://user-images.githubusercontent.com/87464956/202449390-e6e240a6-920b-4e4e-b82e-a9fc06cc2a53.png)
 
+마지막으로, **Loss function의 변화**에 따른 실험 결과입니다. **MSE Loss를 사용하였을 때 가장 좋은 성능**을 보였습니다.
 
-#### Layer에 따른 변화
+L1 loss는 MSE Loss와 비슷하지만, MSE는 Reconstruction error를 제곱해주는 반면 L1은 절대값을 취해준다는 차이점이 있습니다. 이때, MSE는 Outlier, 즉 이상치의 정도가 심하면 심할수록 제곱을 하기에 값이 매우 커지게 됩니다. 그러나 L1은 이상치의 정도에 MSE보다는 훨씬 덜 민감하게 반응하기에 좋은 성능을 가지지는 못한 것 같습니다. 즉, Anomaly detection 처럼 이상치의 등장에 주의 깊게 주목을 해야 하는 경우라면 MSE Loss를 사용하는 것이 제일 좋아 보입니다.
 
-
-
+마지막으로, 두 확률 분포가 존재할 때 두 확률 분포의 차이를 계산하는 KL-divergence loss를 사용하였습니다. 막연하게 생각하였을 때, 정상 데이터들의 분포를 일치 시키면 좋을 것 같다는 생각에 이를 사용해 보았는데, 모델이 완전히 망가지는 모습을 볼 수 있었습니다. 정확히는 원인을 모르겠지만,  KL-divergence가 거리 개념이 아니기 때문이라는 생각이 들었습니다.
