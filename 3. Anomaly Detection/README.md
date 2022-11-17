@@ -3,6 +3,7 @@
 1. 이상치 탐지란?
 2. Autoencoder
     - 2-1. Tutorial
+    - 2-2. Experiments
 
 
 
@@ -92,10 +93,9 @@
 또한, 제가 이번 실험은 다음과 같은 **Hyper parameter**의 변화를 통하여 모델의 학습이 어떻게 바뀌는지 확인하고자 합니다.
 
 - **이상치 데이터의 개수**
-- **Autoencdoer 내의 Layer 수**
-- **Loss function**
 - **learning rate**
-- **epoch**
+- **Loss function**
+- **Autoencdoer 내의 Layer 수**
 
 먼저, 해당 실험을 위해 필요한 데이터들을 만들어 줍니다.
 
@@ -671,3 +671,23 @@ print('[TP] {}\t[FP] {}\t[TN] {} [FN] {}'.format(tp, fp, tn, fn))
 해당 코드를 통하여 TP, FP, TN, FN을 시각화 하였고, 해당 모델의 전체적인 Accuracy, Precision, Recall, F1-Score는 다음과 같이 나오게 됩니다.
 
 ![image](https://user-images.githubusercontent.com/87464956/202422294-e5bb3020-f876-4d05-8483-94297e81a23d.png)
+
+
+### 2-2. Experiments
+
+#### 이상치 비율에 따른 변화
+
+
+
+#### Learning rate에 따른 변화
+
+
+
+#### Loss function에 따른 변화
+
+
+
+#### Layer에 따른 변화
+
+
+
