@@ -289,7 +289,7 @@ stack_xgboost_catboost = stack_models(estimator_list = [oil_xgboost, oil_catboos
 
 ![image](https://user-images.githubusercontent.com/87464956/205020651-08ea3121-e1b6-44fb-8a69-dd16da88ec30.png)
 
-![image](https://user-images.githubusercontent.com/87464956/205020694-8832cea6-2d6c-4088-94f0-51e7b8e76f2e.png)
+![image](https://user-images.githubusercontent.com/87464956/205022364-38218cbb-214d-474b-9285-9332121c7f61.png)
 
 ![image](https://user-images.githubusercontent.com/87464956/205020726-baa4a907-302a-400a-bf2e-a59be70c0cd9.png)
 
