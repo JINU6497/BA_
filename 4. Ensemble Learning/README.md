@@ -158,3 +158,237 @@ Feature들이 많을 수록, 데이터들은 매우 Sparse하게 됩니다. 또�
 Catboost에서는 이러한 Prediction shift 문제를 해결하기 위하여, **Ordered Boosting**을 제안합니다. 이는 다음과 같이 **Training에 사용한 instance에 따라 모델의 집합을 다르게 생성하여 유지**하면, 각 단계에서 독립적인 데이터셋을 사용할 수 있게 된다는 것입니다. 이때, 이를 위하여 Ordered TS처럼 Artifitiial Time인 $σ$를 이용하게 됩니다.
 
 ## 6. Tutorial
+
+해당 Tutorial의 주제는 Ensemble of Ensemble by stacking입니다. 다음 3가지의 모델을 각각 2가지의 데이터(Regression data, Classification data)를 통하여 학습 시켜 최종 Output을 도출하고자 합니다.
+
+- LightGBM
+- XGBoost
+- CatBoost
+
+이 외에도, Stacking 방법을 통하여 최고의 Performance를 낼 수 있도록 하는 모델들의 조합을 찾아보고자 합니다.
+
+이번 Tutorial에서 사용하고자 하는 데이터는 다음과 같습니다.
+
+- Dacon에서 제공하는 건설기계 오일 상태 분류 AI 데이터: Binary classification
+    - [https://dacon.io/competitions/official/236013/overview/description](https://dacon.io/competitions/official/236013/overview/description)
+    - 변수 개수: 53개
+    - Training data: 14095개
+    - Test data: 6041개
+
+- Pycaret 프레임워크에서 제공하는 bike data: Regression
+    - 변수 개수:  15개
+    - Training data: 15641개
+    - Test data: 1738개
+
+### Binary Classification
+
+먼저, Dacon에서 제공하는 건설기계 오일 상태 분류 AI 데이터를 통하여, 고장인지 아닌지를 구분하는 Binary classification problem을 해결해보도록 하겠습니다.
+
+```python
+# Dacon 건설기계 오일 상태 분류 데이터 불러오기
+
+oil_train_data = pd.read_csv('./data/train.csv')
+oil_test_data = pd.read_csv('./data/test.csv')
+oil_submission_data = pd.read_csv('./data/sample_submission.csv')
+
+oil_train = pd.DataFrame(oil_train_data)
+oil_test = pd.DataFrame(oil_test_data)
+
+print(f"Traffic Train data: {str(oil_train.shape)}")
+print(f"Traffic Test data: {str(oil_test.shape)}")
+
+# Y_LABEL을 int형에서 object형으로 변환
+oil_train = oil_train.astype({'Y_LABEL' : 'object'})
+```
+
+```python
+# train data 확인, 결측치 확인
+
+oil_train.info(), oil_train.isnull().sum()
+
+# test data 확인
+
+oil_test.info()
+```
+
+이때, Train data는 많은 결측치가 존재하고 있었습니다. 이에 결측치가 10,000개가 넘어가는 Feature는 아예 삭제하도록 하겠습니다. 이후, 남은 결측치 데이터에 대해서는 보간법을 적용해줍니다.
+
+```python
+# 결측치 많은 Feature 제거
+del_list = []
+for i in range(len(oil_train.columns)):
+    if oil_train.isnull().sum()[i] > 10000:
+        del_list.append(oil_train.columns[i])
+        
+oil_train = oil_train.drop( del_list, axis=1 )
+
+# 보간법
+oil_train = oil_train.interpolate(method='values')
+```
+
+Categorical 변수인 'COMPONENT_ARBITRARY’ 는 One-hot encoding으로 채워줍니다.
+
+```python
+# train 부분
+
+dummy_frame = pd.get_dummies(oil_train['COMPONENT_ARBITRARY'])
+
+oil_train = pd.concat([oil_train, dummy_frame], axis = 1)
+oil_train.drop(['COMPONENT_ARBITRARY'], axis = 1, inplace = True)
+
+# test 부분
+
+dummy_frame = pd.get_dummies(oil_test['COMPONENT_ARBITRARY'])
+
+oil_test = pd.concat([oil_test, dummy_frame], axis = 1)
+oil_test.drop(['COMPONENT_ARBITRARY'], axis = 1, inplace = True)
+```
+
+이제, 머신러닝 Pipeline을 제공하는 Pycaret을 통하여 Tutorial을 진행해보도록 하겠습니다.
+
+```python
+from pycaret.classification import *
+```
+
+Pycaret에 data를 넣기 위해서는, 다음과 같이 pycaret이 요구하는 데이터 형식에 맞추어서 넣어주어야 합니다. 이때, Validation data의 비율은 Default로 0.3로 들어가게 됩니다.  
+
+```python
+oil_train = setup(data = oil_train, target = 'Y_LABEL', session_id=123, fold_shuffle=True)
+```
+
+이후, 모델을 만들고, 성능을 확인해보도록 하겠습니다. 그러나, Local 컴퓨터의 하드웨어의 문제로 Classification에 관해서는 모든 Stacking을 진행하지 못했습니다.
+
+```python
+# XGBoost
+oil_xgboost = create_model('xgboost', verbose = False)
+plot_model(oil_xgboost, plot= 'auc')
+plot_model(oil_xgboost, plot= 'confusion_matrix')
+
+# LightGBM
+oil_lightgbm = create_model('lightgbm', verbose = False)
+plot_model(oil_lightgbm, plot= 'auc')
+plot_model(oil_lightgbm, plot= 'confusion_matrix')
+
+# Catboost
+oil_catboost = create_model('catboost', verbose = False)
+plot_model(oil_catboost, plot= 'auc')
+plot_model(oil_catboost, plot = 'confusion_matrix')
+```
+
+```python
+# Stacking: XGBoost + lightGBM
+stack_xgboost_lightgbm = stack_models(estimator_list = [oil_xgboost, oil_lightgbm])
+
+# Stacking: XGBoost + Catboost
+stack_xgboost_catboost = stack_models(estimator_list = [oil_xgboost, oil_catboost])
+```
+
+이렇게 해서 나온, 모든 결과는 다음과 같습니다.
+
+![image](https://user-images.githubusercontent.com/87464956/205020615-e7895394-8201-43dd-a4a6-b75705b2134f.png)
+
+![image](https://user-images.githubusercontent.com/87464956/205020651-08ea3121-e1b6-44fb-8a69-dd16da88ec30.png)
+
+![image](https://user-images.githubusercontent.com/87464956/205020694-8832cea6-2d6c-4088-94f0-51e7b8e76f2e.png)
+
+![image](https://user-images.githubusercontent.com/87464956/205020726-baa4a907-302a-400a-bf2e-a59be70c0cd9.png)
+
+이때 XGBoost의 성능이 가장 낮았음을 확인할 수 있었습니다.
+
+F1값을 기준으로, 단일 LightGBM을 통한 결과값이 가장 좋게 나왔습니다. 이에 단일 Catboost를 Test data에 넣어보도록 한 후, 최종 결과값을 내 보도록 하겠습니다.
+
+```python
+# 최종 모델 선정
+final_classification = finalize_model(oil_lightgbm)
+
+# 선정한 모델에 Test data 넣어서 최종 output 도출
+predict_classification = predict_model(final_classification, data = oil_test)
+```
+
+### Regression
+
+Pycaret에서 제공하는 데이터를 다음과 같이 받아옵니다.
+
+```python
+# Pycaret에서 제공하는 bike 데이터
+
+# bike_dataset = get_data('bike', profile=True)
+bike_dataset = get_data('bike')
+```
+
+이렇게 받아온 데이터를 다음과 같이 Train:Test = 9:1의 비율로 하여 나누어줍니다.
+
+```python
+# Pycaret에서 제공하는 bike 데이터
+
+bike_train = bike_dataset.sample(frac=0.90, random_state=786)
+bike_test = bike_dataset.drop(bike_train.index)
+bike_train.reset_index(inplace=True, drop=True)
+bike_test.reset_index(inplace=True, drop=True)
+print(f"bike Train data: {str(bike_train.shape)}")
+print(f"bike Test data: {str(bike_test.shape)}")
+```
+
+데이터의 정보를 확인하였을 때, 아무런 결측치나 문제점이 없는 것을 확인하였습니다. 
+
+```python
+# Train data 확인
+bike_train.info()
+
+# Test data 확인
+bike_test.info()
+```
+
+이렇게 정리해준 데이터를, Pycaret에서 요구하는 데이터 형식에 맞추어 줍니다. 
+
+```python
+from pycaret.regression import *
+bike_train_data = setup(data = bike_train, target = 'cnt', session_id=41)
+```
+
+이후, 모델을 만들고 결과를 확인합니다.
+
+```python
+# XGBoost
+bike_xgboost = create_model('xgboost', verbose = False)
+plot_model(oil_xgboost, plot= 'auc')
+plot_model(oil_xgboost, plot= 'confusion_matrix')
+
+# LightGBM
+bike_lightgbm = create_model('lightgbm', verbose = False)
+plot_model(oil_lightgbm, plot= 'auc')
+plot_model(oil_lightgbm, plot= 'confusion_matrix')
+
+# Catboost
+bike_catboost = create_model('catboost', verbose = False)
+plot_model(oil_catboost, plot= 'auc')
+plot_model(oil_catboost, plot = 'confusion_matrix')
+```
+
+만들어진 모델들에 대하여 Stacking을 적용하여 한번 성능을 확인해봅니다.
+
+```python
+# Stacking: XGBoost + lightGBM
+stack_xgboost_lightgbm = stack_models(estimator_list = [oil_xgboost, oil_lightgbm])
+
+# Stacking: XGBoost + Catboost
+stack_xgboost_catboost = stack_models(estimator_list = [oil_xgboost, oil_catboost])
+
+# Stacking: lightGBM + Catboost
+stack_catboost_lightgbm = stack_models(estimator_list = [bike_catboost, bike_lightgbm])
+
+# Stacking: ALL
+stack_all = stack_models(estimator_list = [bike_catboost, bike_lightgbm, bike_xgboost])
+```
+
+이때, 나온 결과는 총 다음과 같습니다.
+
+![image](https://user-images.githubusercontent.com/87464956/205020761-7abf463c-f056-4a64-9541-40d9b0a2bbad.png)
+
+![image](https://user-images.githubusercontent.com/87464956/205020805-637513b9-5a7c-4223-be0d-71c453115313.png)
+
+![image](https://user-images.githubusercontent.com/87464956/205020834-5bd26f3d-0ece-4e25-944a-f6cc981678a6.png)
+
+![image](https://user-images.githubusercontent.com/87464956/205020862-93db015a-29a4-4d8a-95b9-8f4cfb9f668f.png)
+
+애초에 Pycaret 자체에서 제공하는 데이터셋이기 때문에 모든 결과가 좋게 나온 것 같다는 생각이 들었습니다. 그렇지만 최종적으로 결과를 따져 보았을 때 모든 모델들을 Stacking한 모델이 $R^2$값을 기준으로 가장 좋은 성능을 보였습니다.
