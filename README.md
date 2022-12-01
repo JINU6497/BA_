@@ -5,3 +5,5 @@
 ### [2. Kernel-based Learning](https://github.com/JINU6497/BA_/tree/main/2.%20Kernel-based%20Learning)
 
 ### [3. Anomaly Detection](https://github.com/JINU6497/BA_/tree/main/3.%20Anomaly%20Detection)
+
+### [4. Ensemble Learning](https://github.com/JINU6497/BA_/tree/main/4.%20Ensemble%20Learning)
