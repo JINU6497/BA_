@@ -293,17 +293,11 @@ stack_xgboost_catboost = stack_models(estimator_list = [oil_xgboost, oil_catboos
 
 ![image](https://user-images.githubusercontent.com/87464956/205020726-baa4a907-302a-400a-bf2e-a59be70c0cd9.png)
 
-이때 XGBoost의 성능이 가장 낮았음을 확인할 수 있었습니다.
+이때 XGBoost의 성능이 가장 낮았음을 확인할 수 있었습니다. 성능면에서는 3개의 알고리즘이 서로 두드러지는 차이를 보이지는 않았으나, 확실히 Catboost나 LightGBM이 수업에서 배운대로 속도를 빠르게 하는 장치들이 있어서 그런지 XGBoost 보다는 훨씬 짧다는 것을 확인할 수 있었으며, 특히 LightGBM은 속도 면에서도 매우 우월하고 성능도 뒤떨어지지 않는다는 것을 확인할 수 있었습니다.
 
-F1값을 기준으로, 단일 LightGBM을 통한 결과값이 가장 좋게 나왔습니다. 이에 단일 Catboost를 Test data에 넣어보도록 한 후, 최종 결과값을 내 보도록 하겠습니다.
+모델들을 Stacking 한 경우에도, 단일 LightGBM보다 좋은 성능을 보이지는 못했습니다. 오히려 전체적으로 단일 모델들에 비해 많이 떨어지는 성능을 보이면서도 학습에 굉장히 많은 시간을 소요하였습니다. 아쉬운 것은 XGBoost를 포함한 stacking 모델만이 정상적으로 학습되었고, lightGBM과 Catboost를 Stacking한 모델은 하드웨어의 문제인지 학습에 자꾸 실패하는 모습을 보였습니다. 이에 Stacking 모델에 관하여는 서로 정확한 비교는 어려울 것 같습니다.
 
-```python
-# 최종 모델 선정
-final_classification = finalize_model(oil_lightgbm)
-
-# 선정한 모델에 Test data 넣어서 최종 output 도출
-predict_classification = predict_model(final_classification, data = oil_test)
-```
+최종적으로, 해당 실험에서는 F1값을 기준으로 단일 LightGBM을 통한 결과값이 가장 좋게 나왔다는 것을 확인할 수 있었습니다.
 
 ### Regression
 
@@ -391,4 +385,10 @@ stack_all = stack_models(estimator_list = [bike_catboost, bike_lightgbm, bike_xg
 
 ![image](https://user-images.githubusercontent.com/87464956/205020862-93db015a-29a4-4d8a-95b9-8f4cfb9f668f.png)
 
-애초에 Pycaret 자체에서 제공하는 데이터셋이기 때문에 모든 결과가 좋게 나온 것 같다는 생각이 들었습니다. 그렇지만 최종적으로 결과를 따져 보았을 때 모든 모델들을 Stacking한 모델이 $R^2$값을 기준으로 가장 좋은 성능을 보였습니다.
+애초에 Pycaret 자체에서 제공하는 데이터셋이기 때문에 해당 프레임워크에서 맞추어져 있어 모든 결과가 좋게 나온 것 같다는 생각이 들었습니다. 그렇지만 최종적으로 결과를 따져 보았을 때 모든 모델들을 Stacking한 모델이 $R^2$값을 기준으로 가장 좋은 성능을 보였습니다.
+
+Classification의 경우와는 반대로, Catboost가 가장 우수한 성능을 보였지만, XGBoost보다 훨씬 많은 시간을 소요하였습니다. LightGBM은 Classification의 경우와 동일하게 매우 짧은 시간에 학습을 마쳤고, 크게 뒤떨어지지 않는 성능을 보였습니다. 
+
+모델들을 Stacking 한 경우에는 Classification의 경우와는 다르게 모든 Stacking 조합들이 단일 모델들보다 $R^2$ 기준으로 좋은 성능을 보인 것을 알 수 있었습니다. 현 실험에서는, 모든 모델을 함께 Stacking한 조합이 가장 좋은 성능을 보였습니다. 
+
+최종적으로, 해당 실험에서는 $R^2$값을 기준으로 모든 Model을 stacking한 조합의 결과값이 가장 좋게 나왔다는 것을 확인할 수 있었습니다.
