@@ -7,3 +7,5 @@
 ### [3. Anomaly Detection](https://github.com/JINU6497/BA_/tree/main/3.%20Anomaly%20Detection)
 
 ### [4. Ensemble Learning](https://github.com/JINU6497/BA_/tree/main/4.%20Ensemble%20Learning)
+
+### [5. Semi-supervised Learning](https://github.com/JINU6497/BA_/tree/main/5.%20Semi-supervised%20Learning)
