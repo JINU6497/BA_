@@ -451,10 +451,4 @@ SVHN Data에 대해서 label data의 수를 [40, 100, 150]으로 바꿔가면서
 
 SVHN Data 자체가 많은 양의 Data를 가지고 있기에, Unlabeld ratio를 조금씩 늘리더라도 데이터의 수가 너무 많이 증가하기에 Batch size가 8인 경우에도 Out of memory 문제가 발생하여, 4로 내려서 다시 실험을 진행한 결과에서도 특정 결과들을 제외하면 대부분이 Out of memory 문제가 발생하여 해당 실험을 진행할 수 없었습니다.
 
-- Pi-Model
-- Mean Teacher
-- Virtual Adversarial Training(VAT)
-- Unsupervised Data Augmentation(UDA)
-- MixMatch
-
 최종적으로 **4가지의 Consistency Regularization 모델들, Pi-Model, Mean Teacher, VAT, UDA**와 **MixMatch** 를 더하여 총 5가지의 모델에 3 가지의 데이터셋, **CIFAR-100, EuroSAT, SVHN**에 대하여 2가지의 변수, **Label data의 수**와 **Unlabeled data의 비율**을 바꿔가면서 실험을 진행하였습니다. 모든 모델이 그런 것은 아니지만 예상한 대로 Label data의 수를 늘릴수록 전체적으로 모델들의 성능이 좋아짐을 알 수 있었습니다. 그러나, Unlabeled ratio를 수정하는 경우에는, 각 모델들이 일정한 결과값을 보이지는 않았습니다.  이에 Unlabeled ratio를 대폭 늘렸을 때 성능이 상승하는 모델이라면, 효과적인 Pseudo labeling을 수행할 수 있는 모델이라고 해석할 수 있었습니다.
