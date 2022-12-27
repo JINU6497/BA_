@@ -140,3 +140,321 @@
 ![image](https://user-images.githubusercontent.com/87464956/209424656-f711831f-77f0-4801-b30a-f80f38836ba6.png)
 
 마지막으로 **Image classification에 대한 Augmentation 방법**론입니다. 먼저 **Rand Augment**을 알기 전에, **Auto augment**에 대해서 설명 드리겠습니다. 이는 강화학습을 통하여 **Augmentation 하는 방법으로, Python Image Library에서 모든 변환 방법들을 조합하여 최적의 이미지 변환 방법을 찾아서 데이터 증강에 사용하는 방법**입니다. 해당 논문에서 제시하는 **Rand Augment**는 **Auto Augment** 방법을 개조한 방법으로, **최적의 이미지 변환 방법을 찾는 대신에 Uniformly sampling하여 Data를 Augmentation하는 방법**입니다. 이를 통하여 최적의 이미지 변환 방법을 찾을 시간을 사용하지 않아서 빠르게 Augmentation 할 수 있고, labeled data가 필요하지 않게 되었습니다.
+
+## 7. Tutorial
+
+전체적인 실험은 Microsoft 사에서 배포하는 Library인 **“USB: A Unified Semi-supervised learning Benchmark for CV, NLP, and Audio Classification”** 를 통하여 진행하였습니다.
+
+### 7-1. Model 설정
+
+해당 실험에서 진행하고자 하는 것은 **4가지의 Consistency Regularization 모델**들과 함께 **한 가지의 Holistic Method 방법론 MixMatch**를 더하여 총 5가지의 모델에 대하여 실험 결과를 비교하고자 합니다. 이때 사용할 모델들은 다음과 같습니다. 
+
+- Pi-Model
+- Mean Teacher
+- Virtual Adversarial Training(VAT)
+- Unsupervised Data Augmentation(UDA)
+- MixMatch
+
+### 7-2. Data
+
+해당 실험에서는 총 3가지의 Dataset을 사용하고자 합니다. 
+
+- **Cifar-100**: 기계 학습에서 흔히 사용되는 이미지 벤치마크 Dataset으로 32 X 32 크기의 60000개의 이미지로 이루어져 있습니다. 이때 100개의 Class로 분류되어 있는데, 각 100개의 Class 이미지는 20개의 Super class로 또 분류됩니다.
+- **EuroSAT**: 인공위성 Data로, 27,000개의 Labeled Data로 구성되어 있으며 10개의 Class로 이루어져 있습니다. 이때, Class는 각 토지가 어떻게 이용되는 가를 의미합니다.
+- **SVHN**: Google Street View에서 수집된 숫자 Dataset으로, 건물 번호나 표지판과 같은 Real world data로 이루어져 있습니다. 총 10개의 Class의 32 X 32 Image로 이루어져 있습니다.
+
+### 7-3. Variable
+
+해당 실험에서는 각 데이터들에 대한 모델들의 **Label data의 수**와 **Unlabeled data의 비율**을 변경해가며 실험을 진행해보도록 하겠습니다. 이때, Unlabeld ratio가 말하는 것은 labeled data가 64개, Unlabeled ratio가 1인 경우는 Unlabeled data가 64개, Unlabeled ratio가 2인 경우는 Unlabeled data가 128개로 늘어나는 것을 의미합니다.
+
+이때, Data에 대해서는 각 Data의 모든 Class의 수를 그대로 이용했습니다.
+
+- Label data의 수
+    - CIFAR-100 = [200, 300, 400]
+    - EuroSAT = [20, 30, 40]
+    - SVHN = [40, 100, 150]
+- Unlabeled ratio = [1, 2, 5]
+
+Labeled data가 늘어난다면, 성능이 좋아질 것이고 Unlabeled ratio가 늘어나면 늘어날수록 성능이 떨어질 것이라는 가설을 바탕으로 실험을 진행해보도록 하겠습니다.
+
+### 7-4. Code
+
+가장 먼저, 라이브러리인 **“USB: A Unified Semi-supervised learning Benchmark for CV, NLP, and Audio Classification”** 를 사용하기 위하여 가상 환경을 만든 후, 해당 라이브러리를 설치해줍니다. 
+
+```python
+"""1. 필요한 모듈 import"""
+
+import torch
+import torchvision
+import torchvision.transforms as transforms
+from torch.utils.data import DataLoader, Dataset
+ 
+import numpy as np
+import pandas as pd 
+import torch.nn as nn
+import torch.optim as optim
+from tqdm import tqdm  #for 문의 진행상황 알려줌 
+import semilearn
+from semilearn import get_dataset, get_data_loader, get_net_builder, get_algorithm, get_config, Trainer
+ 
+# GPU 사용
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+```
+
+다음으로는, 실험에서 사용할 Hyper Parameter들을 다음과 같이 Config 파일을 통하여 쉽게 정리해줍니다. 이때, 해당 Congif에서 변화를 줌으로써 쉽게 어떠한 Dataset을 불러올 것인지, 어떤 Model을 사용할 것인지 등을 설정할 수 있습니다.
+
+아래는 예시를 들기 위한 cifar10 data를 fixmatch에 적용한 예시입니다.
+
+```python
+"""2. Config 간단히 정리"""
+
+config = {
+    'algorithm': 'fixmatch',
+    'net': 'vit_tiny_patch2_32',
+    'use_pretrain': True, 
+    'pretrain_path': 'https://github.com/microsoft/Semi-supervised-learning/releases/download/v.0.0.0/vit_tiny_patch2_32_mlp_im_1k_32.pth',
+
+    # optimization configs
+    'epoch': 1,  # set to 100
+    'num_train_iter': 5000,  # set to 102400
+    'num_eval_iter': 500,   # set to 1024
+    'num_log_iter': 50,    # set to 256
+    'optim': 'AdamW',
+    'lr': 5e-4,
+    'layer_decay': 0.5,
+    'batch_size': 16,
+    'eval_batch_size': 16,
+
+    # dataset configs
+    'dataset': 'cifar10',
+    'num_labels': 40,
+    'num_classes': 10,
+    'img_size': 32,
+    'crop_ratio': 0.875,
+    'data_dir': './data',
+    'ulb_samples_per_class': None,
+
+    # algorithm specific configs
+    'hard_label': True,
+    'uratio': 2,
+    'ulb_loss_ratio': 1.0,
+
+    # device configs
+    'gpu': 0,
+    'world_size': 1,
+    'distributed': False,
+    "num_workers": 2,
+}
+config = get_config(config)
+```
+
+이렇게 Config를 설정했다면, 다음과 같이 모델을 정의합니다.
+
+```python
+"""3. 모델 정의 """
+algorithm = get_algorithm(config,  get_net_builder(config.net, from_name=False), tb_log=None, logger=None)
+```
+
+이후, 사용할 Dataset을 정의해줍니다. 이때, 위의 Config에서 정의한 대로 Dataset으로는 Cifar10 사용하고, Label data의 수는 40개, Class는 10개 그대로 사용하였습니다.
+
+```python
+"""4. Dataset 정의"""
+
+# 
+dataset_dict = get_dataset(config, config.algorithm, config.dataset, config.num_labels, config.num_classes, data_dir=config.data_dir)
+train_lb_loader = get_data_loader(config, dataset_dict['train_lb'], config.batch_size)
+train_ulb_loader = get_data_loader(config, dataset_dict['train_ulb'], int(config.batch_size * config.uratio))
+eval_loader = get_data_loader(config, dataset_dict['eval'], config.eval_batch_size)
+```
+
+이후, 다음과 같이 Training 및 Test를 진행합니다.
+
+```python
+"""5. Training"""
+
+trainer = Trainer(config, algorithm)
+trainer.fit(train_lb_loader, train_ulb_loader, eval_loader)
+```
+
+```python
+"""6. Test"""
+
+trainer.evaluate(eval_loader)
+```
+
+이렇게 나온 결과들은 모두 Log에 기록되어 편하게 관리할 수 있습니다. 그렇다면, 실험 결과를 확인해 보도록 하겠습니다.
+
+### 7-5. 실험 결과
+
+먼저, 각 모델마다 기본적인 세팅은 다음과 같이 진행했습니다. 
+
+- Pi-Model
+
+```python
+epoch: 5
+num_train_iter: 500
+num_log_iter: 50
+num_eval_iter: 100
+batch_size: 8
+eval_batch_size: 16
+num_warmup_iter: 100
+# 아래의 변수들 조정
+# num_labels: 
+# uratio: 
+ema_m: 0.0
+ulb_loss_ratio: 10
+unsup_warm_up: 0.4
+img_size: 32
+crop_ratio: 0.875
+optim: AdamW
+lr: 0.05
+layer_decay: 0.5
+momentum: 0.9
+weight_decay: 0.0005
+```
+
+- Mean Teacher
+
+```python
+epoch: 5
+num_train_iter: 500
+num_log_iter: 50
+num_eval_iter: 100
+batch_size: 8
+eval_batch_size: 16
+num_warmup_iter: 100
+# 아래의 변수들 조정
+# num_labels: 
+# uratio: 
+ema_m: 0.999
+ulb_loss_ratio: 50
+unsup_warm_up: 0.4
+img_size: 32
+crop_ratio: 0.875
+optim: AdamW
+lr: 0.05
+layer_decay: 0.5
+momentum: 0.9
+weight_decay: 0.0005
+```
+
+- VAT
+
+```python
+epoch: 5
+num_train_iter: 500
+num_log_iter: 50
+num_eval_iter: 100
+batch_size: 8
+eval_batch_size: 16
+num_warmup_iter: 100
+# 아래의 변수들 조정
+# num_labels: 
+# uratio: 
+ema_m: 0.0
+img_size: 32
+crop_ratio: 0.875
+optim: AdamW
+lr: 0.05
+layer_decay: 0.5
+momentum: 0.9
+weight_decay: 0.0005
+```
+
+- UDA
+
+```python
+epoch: 5
+num_train_iter: 500
+num_log_iter: 50
+num_eval_iter: 100
+batch_size: 8
+eval_batch_size: 16
+num_warmup_iter: 100
+# 아래의 변수들 조정
+# num_labels: 
+# uratio: 
+ema_m: 0.0
+tsa_schedule: none
+T: 0.4
+p_cutoff: 0.8
+ulb_loss_ratio: 1.0
+img_size: 32
+crop_ratio: 0.875
+optim: AdamW
+lr: 0.05
+layer_decay: 0.5
+momentum: 0.9
+weight_decay: 0.0005
+```
+
+- MixMatch
+
+```python
+epoch: 5
+num_train_iter: 500
+num_log_iter: 50
+num_eval_iter: 100
+batch_size: 8
+eval_batch_size: 16
+num_warmup_iter: 100
+# 아래의 변수들 조정
+# num_labels: 
+# uratio: 
+ema_m: 0.0
+mixup_alpha: 0.5
+T: 0.5
+ulb_loss_ratio: 10
+unsup_warm_up: 0.4
+img_size: 32
+crop_ratio: 0.875
+optim: AdamW
+lr: 0.05
+layer_decay: 0.5
+momentum: 0.9
+weight_decay: 0.0005
+```
+
+컴퓨터의 Hardware 문제로, Batch size와 Iteration을 보통의 경우보다 낮춘 후에 실험을 진행하였습니다. 
+
+- CIFAR-100: Label = [200, 300, 400]
+
+![image](https://user-images.githubusercontent.com/87464956/209666750-1a78b022-c822-4403-8a45-09a0c11a7b4f.png)
+
+CIFAR-100 data에 대해서 label data의 수를 [200, 300, 400]으로 바꿔가면서 진행한 실험 결과입니다. 처음에 설정한 가설대로, 전체적으로 Label 데이터의 수를 늘리니 성능이 좋아진 것을 확인할 수 있었습니다. 역시 Deep learning 모델에서 좋은 성능을 얻기 위해서는 Labeled data들을 기반으로 하는 Supervised learning이 잘 수행되어야 한다는 것을 알 수 있었습니다. 해당 경우, F1-Score를 기준으로 Pi-model과 VAT가 좋은 성능을 보였습니다. 그러나 Iteration을 충분히 돌리지 않아서 인지 각 모델들이 특정 모델을 제외하고는 뚜렷하게 다른 성능을 보이지 않았습니다. 
+
+- CIFAR-100: Unlabeld ratio = [1, 2, 5]
+
+![image](https://user-images.githubusercontent.com/87464956/209666834-91ba2ecb-fd6e-4f9c-95ee-248954373f4d.png)
+
+CIFAR-100 data에 대해서 label data의 수는 200으로 고정한 후, Unlabeled ratio를 다음과 같이 [1, 2, 5] 순으로 올리며 진행한 실험 결과입니다. Pi-model에 대해서는 처음 설정한 가설대로 Unlabeled data의 수가 많아짐에 따라서 성능이 조금씩 하락하는 모습을 보였으나, 다른 모델들은 오히려 성능이 올라가는 모습을 보였습니다. 이에, 단순히 Unlabeled data의 비율이 높아진다고 성능이 하락하는 것이 아니라, 모델 자체적으로 Unlabeled data에 대해서 잘 Pseudo label을 부여한다면, 오히려 성능이 올라갈 수 있겠다라는 것이 맞겠다고 생각하였습니다. 이때 Uratio의 수를 증가시킴에 따라 가용해야 하는 Data의 수가 크게 증가하므로 Mixmatch(5)의 경우에는 Out of memory라는 결과를 보였습니다.
+
+- EuroSAT: Label = [20, 30, 40]
+
+![image](https://user-images.githubusercontent.com/87464956/209666850-cffffa2c-1dec-4332-889d-026229e280ab.png)
+
+EuroSAT data에 대해서 label data의 수를 [20, 30, 40]으로 바꿔가면서 진행한 실험 결과입니다. 해당 Dataset은 인공위성 Data로, Class가 의미하는 것은 인공위성에서 촬영한 사진(토지)이 어떻게 이용되는 지를 의미합니다. Data 자체가 사실 쉽지 않은 Task이다 보니, 전체적으로 성능이 좋지 않음을 보였다고 생각할 수 있었습니다. 그러나 전체적으로 모델들이 Labeled data의 수가 늘어날수록 더 좋은 성능을 보였다는 것을 확인할 수 있었습니다. 
+
+- EuroSAT: Unlabeled ratio = [1, 2, 5]
+
+![image](https://user-images.githubusercontent.com/87464956/209666862-638f1956-761a-4b44-abfb-8aef75e54dcb.png)
+
+CIFAR-100 data에 대해서 label data의 수는 20으로 고정한 후, Unlabeled ratio를 다음과 같이 [1, 2, 5] 순으로 올리며 진행한 실험 결과입니다. 해당 실험에서도, 특정 모델들을 제외한다면 Unlabeled ratio가 증가할수록 모델의 성능이 증가함을 알 수 있었습니다. 크게 변화가 없는 모델들도 존재하였으나, Pi-model 같은 경우에는 Unlabeled ratio가 늘어날수록 성능이 크게 향상되는 모습을 볼 수 있었습니다. 이를 통하여 Pi-model은 Unlabeled data에 대해서 Pseudo labeling을 효과적으로 진행한다는 생각이 들었습니다. 이때 Uratio의 수를 증가시킴에 따라 가용해야 하는 Data의 수가 크게 증가하므로 CIFAR-100의 경우와 같이 Mixmatch(5)의 경우에는 Out of memory라는 결과를 보였습니다.
+
+- SVHN: Label = [40, 100, 150]
+
+![image](https://user-images.githubusercontent.com/87464956/209666872-e3cea446-0364-4766-b5f2-334bb482fe6d.png)
+
+SVHN Data에 대해서 label data의 수를 [40, 100, 150]으로 바꿔가면서 진행한 실험 결과입니다. SVHN Data에 대해서는 전체적으로 모델들의 성능이 매우 낮게 나왔음을 확인할 수 있었습니다. 이는 SVHN Data set이 총 73,257 개의 Training data로 이루어져 있음에도 Labeled data의 수를 너무 낮게 설정했기 때문이 아닌가라는 생각을 하였습니다. 또한, 전체적인 데이터의 수에 비하면 너무 작은 Labeled data수 이긴 하지만, Labeled data의 수를 조금씩 올렸음에도 불구하고 성능이 좋아지지 않는 모습을 확인할 수 있었습니다. 해당 부분은 Hyper parameter를 조금씩 변경 시켜가며 더 다양한 실험을 진행하였으면 분명히 더 좋은 결과를 낼 수 있지 않았을까라는 생각을 하였습니다.  
+
+- SVHN: Unlabeled ratio = [1, 2, 5]
+
+SVHN Data 자체가 많은 양의 Data를 가지고 있기에, Unlabeld ratio를 조금씩 늘리더라도 데이터의 수가 너무 많이 증가하기에 Batch size가 8인 경우에도 Out of memory 문제가 발생하여, 4로 내려서 다시 실험을 진행한 결과에서도 특정 결과들을 제외하면 대부분이 Out of memory 문제가 발생하여 해당 실험을 진행할 수 없었습니다.
+
+- Pi-Model
+- Mean Teacher
+- Virtual Adversarial Training(VAT)
+- Unsupervised Data Augmentation(UDA)
+- MixMatch
+
+최종적으로 **4가지의 Consistency Regularization 모델들, Pi-Model, Mean Teacher, VAT, UDA**와 **MixMatch** 를 더하여 총 5가지의 모델에 3 가지의 데이터셋, **CIFAR-100, EuroSAT, SVHN**에 대하여 2가지의 변수, **Label data의 수**와 **Unlabeled data의 비율**을 바꿔가면서 실험을 진행하였습니다. 모든 모델이 그런 것은 아니지만 예상한 대로 Label data의 수를 늘릴수록 전체적으로 모델들의 성능이 좋아짐을 알 수 있었습니다. 그러나, Unlabeled ratio를 수정하는 경우에는, 각 모델들이 일정한 결과값을 보이지는 않았습니다.  이에 Unlabeled ratio를 대폭 늘렸을 때 성능이 상승하는 모델이라면, 효과적인 Pseudo labeling을 수행할 수 있는 모델이라고 해석할 수 있었습니다.
